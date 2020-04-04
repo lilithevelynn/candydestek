@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const config = require('../config');
-const utils = require('../utils');
 
 module.exports = ({ bot }) => {
   if (! config.enableGreeting) return;
@@ -22,16 +21,14 @@ module.exports = ({ bot }) => {
       });
     }
 
-    const greetingMessage = utils.readMultilineConfigValue(guildGreeting.message);
-
     if (guildGreeting.attachment) {
       const filename = path.basename(guildGreeting.attachment);
       fs.readFile(guildGreeting.attachment, (err, data) => {
         const file = {file: data, name: filename};
-        sendGreeting(greetingMessage, file);
+        sendGreeting(guildGreeting.message, file);
       });
     } else {
-      sendGreeting(greetingMessage);
+      sendGreeting(guildGreeting.message);
     }
   });
 };

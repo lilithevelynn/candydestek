@@ -42,7 +42,7 @@ class Thread {
 
     if (isAnonymous) {
       modUsername = (mainRole ? mainRole.name : 'Moderator');
-      logModUsername = `(Anonymous) (${moderator.user.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
+      logModUsername = `(${moderator.user.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
     } else {
       const name = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
       modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
@@ -75,7 +75,7 @@ class Thread {
           })
         ]);
 
-        logContent += `\n\n**Attachment:** ${savedAttachment.url}`;
+        logContent += `\n\n**Ek dosya:** ${savedAttachment.url}`;
       }
     }
 
@@ -91,7 +91,7 @@ class Thread {
         body: logContent
       });
 
-      await this.postSystemMessage(`Error while replying to user: ${e.message}`);
+      await this.postSystemMessage(`Kullanıcıya yanıt verilirken hata oluştu: ${e.message}`);
 
       return false;
     }
@@ -111,7 +111,7 @@ class Thread {
 
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+      await this.postSystemMessage(`Yeni yanıt nedeniyle bu ileti dizisinin planlanan kapanışını iptal etme`);
     }
 
     return true;
@@ -124,7 +124,7 @@ class Thread {
   async receiveUserReply(msg) {
     let content = msg.content;
     if (msg.content.trim() === '' && msg.embeds.length) {
-      content = '<message contains embeds>';
+      content = '<mesaj yerleştirme içeriyor>';
     }
 
     let threadContent = `**${msg.author.username}#${msg.author.discriminator}:** ${content}`;
@@ -165,12 +165,12 @@ class Thread {
 
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
+      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Kapatılması planlanan ileti dizisine yeni bir yanıt geldi.`);
     }
 
     if (this.alert_id) {
       await this.setAlert(null);
-      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
+      await this.postSystemMessage(`<@!${this.alert_id}> Adlı kişiden yeni ileti ${this.user_name}`);
     }
   }
 
@@ -191,7 +191,7 @@ class Thread {
     // Try to open a DM channel with the user
     const dmChannel = await this.getDMChannel();
     if (! dmChannel) {
-      throw new Error('Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.');
+      throw new Error('Kullanıcılarla DM açılamadı. Botu engellemiş veya gizlilik ayarlarını kapatmış olabilirler.');
     }
 
     // Send the DM
@@ -223,7 +223,7 @@ class Thread {
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {
-        console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the channel no longer exists. Auto-closing the thread.`);
+        console.log(`[Bilgi] ileti dizisi kanalına ileti gönderilemedi ${this.user_name} çünkü kanal artık mevcut değil. İpliği otomatik olarak kapatma.`);
         this.close(true);
       } else {
         throw e;
@@ -335,6 +335,9 @@ class Thread {
   /**
    * @returns {Promise<void>}
    */
+   /**
+   * @returns {Promise<void>}
+   */
   async close(suppressSystemMessage = false, silent = false) {
     if (! suppressSystemMessage) {
       console.log(`Closing thread ${this.id}`);
@@ -342,7 +345,7 @@ class Thread {
       if (silent) {
         await this.postSystemMessage('Closing thread silently...');
       } else {
-        await this.postSystemMessage('Closing thread...');
+        await this.postSystemMessage('Kapatılıyor...');
       }
     }
 
@@ -360,7 +363,6 @@ class Thread {
       await channel.delete('Thread closed');
     }
   }
-
   /**
    * @param {String} time
    * @param {Eris~User} user
